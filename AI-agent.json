@@ -1,0 +1,117 @@
+{
+  "name": "AI-agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bd7d946e-ac18-4314-9e84-1f3066ce330b",
+      "name": "When chat message received",
+      "webhookId": "197cd1b0-02c7-425a-ac76-7f5194c16f37"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        240,
+        0
+      ],
+      "id": "0bc70657-7541-4a0e-b16f-515ac7579f11",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "nvidia/nemotron-nano-12b-v2-vl:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        240,
+        208
+      ],
+      "id": "8313e875-5d53-4f6f-bdb2-2a4bb72bf29b",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "RoeEGOMyKGt1CG2n",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.3,
+      "position": [
+        592,
+        0
+      ],
+      "id": "ecb8060e-d7c3-4eee-b026-a6e2df93153d",
+      "name": "Chat",
+      "webhookId": "ed9815a6-f4a0-43a0-a311-bd01ce6afb3e"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f9e4ed47-f20c-4726-9c35-9a0e13bdd611",
+  "meta": {
+    "instanceId": "f2e3ebfe3da03c4881d0653ca41ebcea83ed135316b987e2b31362563da885f5"
+  },
+  "nodeGroups": [],
+  "id": "d9zg7hI9ZDw87MtS",
+  "tags": []
+}
