@@ -60,8 +60,8 @@
       "type": "@n8n/n8n-nodes-langchain.chat",
       "typeVersion": 1.3,
       "position": [
-        1312,
-        48
+        1536,
+        64
       ],
       "id": "1ee69678-5f7f-4cc7-9429-73f920e9c115",
       "name": "Chat",
@@ -180,6 +180,55 @@
       ],
       "id": "6d8b99f4-00ee-46eb-bf3a-dbac55529b12",
       "name": "sanitize-AI-output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "732a9430-dae2-4ba4-b911-fec943daa2a8",
+              "leftValue": "={{ $json.flagged }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1312,
+        48
+      ],
+      "id": "0cdbbf40-a28e-48f2-a5dc-671b58ff86b3",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "message": "Your message has been blocker for security reasons !!! ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.3,
+      "position": [
+        1312,
+        272
+      ],
+      "id": "5db52fe3-4da0-45d9-ac0b-6201a6fb7944",
+      "name": "Chat2",
+      "webhookId": "2fe22141-3289-47f3-bdc8-cfdf73e227a9"
     }
   ],
   "pinData": {},
@@ -250,7 +299,7 @@
       "main": [
         [
           {
-            "node": "Chat",
+            "node": "If1",
             "type": "main",
             "index": 0
           }
@@ -267,6 +316,24 @@
           }
         ]
       ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Chat2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -274,7 +341,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "478722b4-9225-4412-ad05-326489838374",
+  "versionId": "af0ab006-dc29-4abd-af13-9fa2417d2417",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9667e31c1d8118dd8053bce018a439f45c50fb92446fe1f7928098c78a981bfa"
