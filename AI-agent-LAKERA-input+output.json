@@ -1,0 +1,285 @@
+{
+  "name": "AI-agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        32
+      ],
+      "id": "39dc1ed1-1e60-4d01-ba0a-821e81b7f3fc",
+      "name": "When chat message received",
+      "webhookId": "197cd1b0-02c7-425a-ac76-7f5194c16f37"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        656,
+        48
+      ],
+      "id": "0cd1e7bc-6334-4474-8a7f-6ca3ef2106e8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "nvidia/nemotron-nano-12b-v2-vl:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        656,
+        208
+      ],
+      "id": "d7dd2c9b-8f55-4262-9dfb-9039adc6533f",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "gTavskvWDNYdQjQb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "message": "={{ $('AI Agent').item.json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.3,
+      "position": [
+        1312,
+        48
+      ],
+      "id": "1ee69678-5f7f-4cc7-9429-73f920e9c115",
+      "name": "Chat",
+      "webhookId": "ed9815a6-f4a0-43a0-a311-bd01ce6afb3e"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.lakera.ai/v2/guard",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"messages\":[\n    {\n      \"content\": \"{{ $json.chatInput }}\",\n      \"role\": \"user\"\n    }\n  ],\n  \"breakdown\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        32
+      ],
+      "id": "9d157271-9717-454f-bb0b-6f1f6609d208",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "aCdiqlMaWSZ71vlU",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "732a9430-dae2-4ba4-b911-fec943daa2a8",
+              "leftValue": "={{ $json.flagged }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        32
+      ],
+      "id": "17de489e-aa45-485d-9e6c-b9f750b15f8c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "message": "Your message has been blocker for security reasons !!! ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        320
+      ],
+      "id": "95b9e447-4fb3-4c86-bae2-4c7222406acb",
+      "name": "Chat1",
+      "webhookId": "662dcd06-f4e2-4f5e-837c-e708fd9b63c5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.lakera.ai/v2/guard",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messages\": [\n    {\n      \"content\": \"{{ $json.output }}\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"breakdown\": true\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1136,
+        48
+      ],
+      "id": "a4be59aa-a5a5-4854-8194-592a03772a7f",
+      "name": "Lakera-output",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "aCdiqlMaWSZ71vlU",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { output: $input.first().json.output.replace(/\\n/g, '\\\\n').replace(/\"/g, '\\\\\"') } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        48
+      ],
+      "id": "6d8b99f4-00ee-46eb-bf3a-dbac55529b12",
+      "name": "sanitize-AI-output"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "sanitize-AI-output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lakera-output": {
+      "main": [
+        [
+          {
+            "node": "Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sanitize-AI-output": {
+      "main": [
+        [
+          {
+            "node": "Lakera-output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "478722b4-9225-4412-ad05-326489838374",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9667e31c1d8118dd8053bce018a439f45c50fb92446fe1f7928098c78a981bfa"
+  },
+  "nodeGroups": [],
+  "id": "Fxq0xipb6mOTBHdj",
+  "tags": []
+}
